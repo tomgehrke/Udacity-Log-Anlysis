@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import psycopg2
+import psycopg2.extras
 import os
 
 DATABASE_NAME = "news"
@@ -16,7 +17,7 @@ TOPERRORDAYS_HEAD = "On which days did more than 1% of requests " \
 TOPERRORDAYS_ROW = " * {day:%B %d, %Y} -- {error_rate:.1f}% errors"
 CHECKING_VIEWS = "Checking for supporting views..."
 VIEW_EXISTS = "+ View '{0}' exists!"
-VIEW_DOES_NOT_EXIST = "- View '{0}' does NOT exist! Creating it... "
+VIEW_DOES_NOT_EXIST = "- View '{0}' does NOT exist! Creating it..."
 CREATE_VIEW_EXCEPTION = "- Unable to create view {0}!"
 SELECT_VIEW = '''
     SELECT table_name
@@ -92,7 +93,7 @@ def check_view(name):
     if news_cursor.rowcount > 0:
         return view_exists
     else:
-        print(VIEW_DOES_NOT_EXIST.format(name), end="")
+        print(VIEW_DOES_NOT_EXIST.format(name), end=" ")
 
         try:
             if name == TOP3ARTICLES_VIEW:
@@ -118,13 +119,13 @@ def check_view(name):
 def get_top3articles():
     print(TOP3ARTICLES_HEAD + "\n")
     news_connection = psycopg2.connect(database=DATABASE_NAME)
-    news_cursor = news_connection.cursor()
+    news_cursor = news_connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
     news_cursor.execute("SELECT * FROM {0}".format(TOP3ARTICLES_VIEW))
     records = news_cursor.fetchall()
     for record in records:
         print(TOP3ARTICLES_ROW.format(
-            title=record[0],
-            count=record[1])
+            title=record["title"],
+            count=record["article_count"])
             )
     print("\n\n")
     news_connection.close
@@ -133,13 +134,13 @@ def get_top3articles():
 def get_topauthors():
     print(TOPAUTHORS_HEAD + "\n")
     news_connection = psycopg2.connect(database=DATABASE_NAME)
-    news_cursor = news_connection.cursor()
+    news_cursor = news_connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
     news_cursor.execute("SELECT * FROM {0}".format(TOPAUTHORS_VIEW))
     records = news_cursor.fetchall()
     for record in records:
         print(TOPAUTHORS_ROW.format(
-            author=record[0],
-            count=record[1])
+            author=record["name"],
+            count=record["article_count"])
             )
     print("\n\n")
     news_connection.close
@@ -148,13 +149,13 @@ def get_topauthors():
 def get_toperrordays():
     print(TOPERRORDAYS_HEAD + "\n")
     news_connection = psycopg2.connect(database=DATABASE_NAME)
-    news_cursor = news_connection.cursor()
+    news_cursor = news_connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
     news_cursor.execute("SELECT * FROM {0}".format(TOPERRORDAYS_VIEW))
     records = news_cursor.fetchall()
     for record in records:
         print(TOPERRORDAYS_ROW.format(
-            day=record[0],
-            error_rate=record[1])
+            day=record["log_date"],
+            error_rate=record["error_rate"])
             )
     print("\n\n")
     news_connection.close
