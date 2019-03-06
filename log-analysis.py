@@ -126,6 +126,7 @@ def get_top3articles():
             count=record[1])
             )
     print("\n\n")
+    news_connection.close
 
 
 def get_topauthors():
@@ -140,6 +141,7 @@ def get_topauthors():
             count=record[1])
             )
     print("\n\n")
+    news_connection.close
 
 
 def get_toperrordays():
@@ -154,6 +156,7 @@ def get_toperrordays():
             error_rate=record[1])
             )
     print("\n\n")
+    news_connection.close
 
 
 os.system('clear')
