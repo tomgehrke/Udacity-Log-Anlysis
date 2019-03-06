@@ -16,14 +16,14 @@ TOPERRORDAYS_HEAD = "On which days did more than 1% of requests " \
 TOPERRORDAYS_ROW = " * {day:%B %d, %Y} -- {error_rate:.1f}% errors"
 CHECKING_VIEWS = "Checking for supporting views..."
 VIEW_EXISTS = "+ View '{0}' exists!"
-VIEW_DOES_NOT_EXIST = "- View '{0}' does NOT exist! Creating it..."
+VIEW_DOES_NOT_EXIST = "- View '{0}' does NOT exist! Creating it... "
 CREATE_VIEW_EXCEPTION = "- Unable to create view {0}!"
 SELECT_VIEW = '''
     SELECT table_name
     FROM information_schema.views
     WHERE table_name='{0}'
     '''
-CREATETOP3ARTICLES_VIEW = '''
+CREATE_TOP3ARTICLES_VIEW = '''
     CREATE VIEW {0} AS (
         SELECT articles.title,
             count(*) AS article_count
@@ -34,7 +34,7 @@ CREATETOP3ARTICLES_VIEW = '''
         ORDER BY (count(*)) DESC
         LIMIT 3)
     '''
-CREATETOPAUTHORS_VIEW = '''
+CREATE_TOPAUTHORS_VIEW = '''
     CREATE VIEW {0} AS (
         SELECT authors.name,
             count(*) AS article_count
@@ -46,7 +46,7 @@ CREATETOPAUTHORS_VIEW = '''
         GROUP BY authors.id
         ORDER BY (count(*)) DESC)
     '''
-CREATETOPERRORDAYS_VIEW = '''
+CREATE_TOPERRORDAYS_VIEW = '''
     CREATE VIEW {0} AS (
         SELECT aq.log_date,
             aq.error_rate
@@ -90,25 +90,26 @@ def check_view(name):
     news_cursor.fetchall()
 
     if news_cursor.rowcount > 0:
-        # print(VIEW_EXISTS.format(name))
         return view_exists
     else:
-        print(VIEW_DOES_NOT_EXIST.format(name))
+        print(VIEW_DOES_NOT_EXIST.format(name), end="")
 
         try:
             if name == TOP3ARTICLES_VIEW:
-                news_cursor.execute(CREATETOP3ARTICLES_VIEW.format(name))
+                news_cursor.execute(CREATE_TOP3ARTICLES_VIEW.format(name))
             elif name == TOPAUTHORS_VIEW:
-                news_cursor.execute(CREATETOPAUTHORS_VIEW.format(name))
+                news_cursor.execute(CREATE_TOPAUTHORS_VIEW.format(name))
             elif name == TOPERRORDAYS_VIEW:
-                news_cursor.execute(CREATETOPERRORDAYS_VIEW.format(name))
+                news_cursor.execute(CREATE_TOPERRORDAYS_VIEW.format(name))
 
             news_connection.commit()
-        except psycopg2.Error:
+        except psycopg2.Error as error:
             print(CREATE_VIEW_EXCEPTION.format(name))
+            print(error)
             view_exists = False
         finally:
-            print("SUCCESS!\n")
+            if view_exists:
+                print("SUCCESS!\n")
             news_connection.close()
 
         return view_exists
@@ -160,7 +161,6 @@ def get_toperrordays():
 
 
 os.system('clear')
-# print(CHECKING_VIEWS)
 if views_exist() is not True:
     print("There are problems with the supporting views!")
 else:
