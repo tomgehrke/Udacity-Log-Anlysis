@@ -17,7 +17,7 @@ The following requirements must be met:
 
 Each of the questions that the log analysis program answers is provided by an associated view. As noted previously, the views should be created automatically when the program is first run, however the following will allow you to create them yourself or to see how the numbers are being compiled at the very least.
 
-### View: v_top3articles
+### View - v_top3articles
 
 This view provides a list of the three (3) most popular articles.
 
@@ -33,12 +33,12 @@ This view provides a list of the three (3) most popular articles.
         LIMIT 3)
 ```
 
-### View: v_topauthors
+### View - v_topauthors
 
 This view provides article authors listed by the number of views associated with each.
 
 ```sql
-    CREATE VIEW {0} AS (
+    CREATE VIEW v_topauthors AS (
         SELECT authors.name,
             count(*) AS article_count
         FROM articles,
@@ -50,12 +50,12 @@ This view provides article authors listed by the number of views associated with
         ORDER BY (count(*)) DESC)
 ```
 
-### View: v_toperrordays
+### View - v_toperrordays
 
 This view provides a list of the days where the error rate exceeded 1%.
 
 ```sql
-    CREATE VIEW {0} AS (
+    CREATE VIEW v_toperrordays AS (
         SELECT aq.log_date,
             aq.error_rate
         FROM (
