@@ -126,59 +126,37 @@ def check_view(name):
         return view_exists
 
 
-def get_top3articles():
-    """Function provides list of the three most popular articles."""
-    print(TOP3ARTICLES_HEAD + "\n")
+def print_results(view_name):
+    """Print query results to the terminal console."""
     news_connection = psycopg2.connect(database=DATABASE_NAME)
     # Return a dictionary cursor to allow referencing collumns by name
     # instead of by index.
     news_cursor = news_connection.cursor(
         cursor_factory=psycopg2.extras.DictCursor)
-    news_cursor.execute("SELECT * FROM {0}".format(TOP3ARTICLES_VIEW))
+    news_cursor.execute("SELECT * FROM {0}".format(view_name))
     records = news_cursor.fetchall()
-    for record in records:
-        print(TOP3ARTICLES_ROW.format(
-            title=record["title"],
-            count=record["article_count"])
-            )
-    print("\n")
-    news_connection.close
 
-
-def get_topauthors():
-    """Function provides list of authors sorted by popularity."""
-    print(TOPAUTHORS_HEAD + "\n")
-    news_connection = psycopg2.connect(database=DATABASE_NAME)
-    # Return a dictionary cursor to allow referencing collumns by name
-    # instead of by index.
-    news_cursor = news_connection.cursor(
-        cursor_factory=psycopg2.extras.DictCursor)
-    news_cursor.execute("SELECT * FROM {0}".format(TOPAUTHORS_VIEW))
-    records = news_cursor.fetchall()
-    for record in records:
-        print(TOPAUTHORS_ROW.format(
-            author=record["name"],
-            count=record["article_count"])
-            )
-    print("\n")
-    news_connection.close
-
-
-def get_toperrordays():
-    """Function provides answer to which days were the most error-prone."""
-    print(TOPERRORDAYS_HEAD + "\n")
-    news_connection = psycopg2.connect(database=DATABASE_NAME)
-    # Return a dictionary cursor to allow referencing collumns by name
-    # instead of by index.
-    news_cursor = news_connection.cursor(
-        cursor_factory=psycopg2.extras.DictCursor)
-    news_cursor.execute("SELECT * FROM {0}".format(TOPERRORDAYS_VIEW))
-    records = news_cursor.fetchall()
-    for record in records:
-        print(TOPERRORDAYS_ROW.format(
-            day=record["log_date"],
-            error_rate=record["error_rate"])
-            )
+    if view_name == TOPERRORDAYS_VIEW:
+        print(TOPERRORDAYS_HEAD + "\n")
+        for record in records:
+            print(TOPERRORDAYS_ROW.format(
+                day=record["log_date"],
+                error_rate=record["error_rate"])
+                )
+    elif view_name == TOP3ARTICLES_VIEW:
+        print(TOP3ARTICLES_HEAD + "\n")
+        for record in records:
+            print(TOP3ARTICLES_ROW.format(
+                title=record["title"],
+                count=record["article_count"])
+                )
+    elif view_name == TOPAUTHORS_VIEW:
+        print(TOPAUTHORS_HEAD + "\n")
+        for record in records:
+            print(TOPAUTHORS_ROW.format(
+                author=record["name"],
+                count=record["article_count"])
+                )
     print("\n")
     news_connection.close
 
@@ -188,7 +166,7 @@ if views_exist() is not True:
     # The supporting views don't exist so no point in continuing.
     print(VIEW_ISSUE)
 else:
-    get_top3articles()
-    get_topauthors()
-    get_toperrordays()
+    print_results(TOP3ARTICLES_VIEW)
+    print_results(TOPAUTHORS_VIEW)
+    print_results(TOPERRORDAYS_VIEW)
     print(RUN_COMPLETE)
