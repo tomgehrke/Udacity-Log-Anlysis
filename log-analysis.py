@@ -24,7 +24,7 @@ TOPAUTHORS_HEAD = "Who are the most popular authors of all time?"
 TOPAUTHORS_ROW = " * {author} -- {count} views"
 TOPERRORDAYS_HEAD = "On which days did more than 1% of requests " \
     "lead to errors?"
-TOPERRORDAYS_ROW = " * {day:%B %d, %Y} -- {error_rate:.1f}% errors"
+TOPERRORDAYS_ROW = " * {day} -- {error_rate}% errors"
 
 # APPLICATION MESSAGES
 CHECKING_VIEWS = "Checking for supporting views..."
@@ -64,29 +64,16 @@ CREATE_TOPAUTHORS_VIEW = '''
     '''
 CREATE_TOPERRORDAYS_VIEW = '''
     CREATE VIEW {0} AS (
-        SELECT aq.log_date,
-            aq.error_rate
+        SELECT to_char(date, 'FMMonth DD, YYYY') as log_date,
+                    ROUND(error_percent, 2) as error_rate
         FROM (
-            SELECT fl.log_date,
-                fl.log_count,
-                el.error_count,
-                el.error_count::float8
-                    / fl.log_count::float8
-                    * 100 AS error_rate
-            FROM (
-                SELECT date_trunc('day'::text, log."time") AS log_date,
-                    count(*) AS log_count
-                FROM log
-                GROUP BY (date_trunc('day'::text, log."time"))) fl
-            JOIN (
-                SELECT date_trunc('day'::text, log."time") AS log_date,
-                    count(*) AS error_count
-                FROM log
-                WHERE log.status NOT LIKE '200%'
-                GROUP BY (date_trunc('day', log.time))) el
-            ON fl.log_date = el.log_date) aq
-        WHERE aq.error_rate >= 1
-        ORDER BY aq.log_date)
+            SELECT time::date AS date,
+            100 * (COUNT(*) FILTER (WHERE status NOT LIKE '200%') /
+                COUNT(*)::numeric) AS error_percent
+            FROM log
+            GROUP BY time::date
+        ) a
+        WHERE error_percent > 1)
     '''
 
 
