@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+"""Udacity course project.
+
+This Python application will connect to a database that has logged web
+requests. It will return pertinent information on article and author
+popularity as well as noting which days generated a large number of
+errors in response to web requests.
+"""
 
 import psycopg2
 import psycopg2.extras
@@ -83,8 +90,8 @@ CREATE_TOPERRORDAYS_VIEW = '''
     '''
 
 
-# Checks for the existence of supporting views
 def views_exist():
+    """Check for the existence of supporting views."""
     return (
         check_view(TOP3ARTICLES_VIEW)
         and check_view(TOPAUTHORS_VIEW)
@@ -92,10 +99,11 @@ def views_exist():
     )
 
 
-# Checks for the existence of a particular view and creates it if
-# necessary. If the view exists or was successfully created, the
-# function returns True.
 def check_view(name):
+    """Check for the existence of a view and creates it if necessary.
+
+    If the view exists or was successfully created, the function returns True.
+    """
     view_exists = True
     news_connection = psycopg2.connect(database=DATABASE_NAME)
     news_cursor = news_connection.cursor()
@@ -132,7 +140,7 @@ def check_view(name):
 
 
 def get_top3articles():
-    # Function provides list of the three most popular articles.
+    """Function provides list of the three most popular articles."""
     print(TOP3ARTICLES_HEAD + "\n")
     news_connection = psycopg2.connect(database=DATABASE_NAME)
     # Return a dictionary cursor to allow referencing collumns by name
@@ -151,7 +159,7 @@ def get_top3articles():
 
 
 def get_topauthors():
-    # Function provides list of authors sorted by popularity.
+    """Function provides list of authors sorted by popularity."""
     print(TOPAUTHORS_HEAD + "\n")
     news_connection = psycopg2.connect(database=DATABASE_NAME)
     # Return a dictionary cursor to allow referencing collumns by name
@@ -170,7 +178,7 @@ def get_topauthors():
 
 
 def get_toperrordays():
-    # Function provides answer to which days were the most error-prone.
+    """Function provides answer to which days were the most error-prone."""
     print(TOPERRORDAYS_HEAD + "\n")
     news_connection = psycopg2.connect(database=DATABASE_NAME)
     # Return a dictionary cursor to allow referencing collumns by name
