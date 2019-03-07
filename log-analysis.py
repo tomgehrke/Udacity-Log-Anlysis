@@ -161,12 +161,13 @@ def print_results(view_name):
     news_connection.close
 
 
-os.system('clear')
-if views_exist() is not True:
-    # The supporting views don't exist so no point in continuing.
-    print(VIEW_ISSUE)
-else:
-    print_results(TOP3ARTICLES_VIEW)
-    print_results(TOPAUTHORS_VIEW)
-    print_results(TOPERRORDAYS_VIEW)
-    print(RUN_COMPLETE)
+if __name__ == '__main__':
+    os.system('clear')
+    if views_exist() is not True:
+        # The supporting views don't exist so no point in continuing.
+        print(VIEW_ISSUE)
+    else:
+        print_results(TOP3ARTICLES_VIEW)
+        print_results(TOPAUTHORS_VIEW)
+        print_results(TOPERRORDAYS_VIEW)
+        print(RUN_COMPLETE)
